@@ -1,149 +1,104 @@
-const searchInput = document.getElementById("search-input");
-const searchBtn = document.getElementById("search-button");
-const mealsContainer = document.getElementById("meals");
-const resultHeading = document.querySelector(".result-heading");
-const errorContainer = document.getElementById("error-container");
-const mealDetails = document.getElementById("meal-details");
-const mealDetailsContent = document.querySelector(".meal-details-content");
-const backBtn = document.getElementById("back-btn");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Finder</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+        />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-utensils"></i> Recipe Finder</h1>
+            <p>Find delicious recipes from around the world</p>
+        </header>
 
-const BASE_URL = "https://www.themealdb.com/api/json/v1/1/";
-const SEARCH_URL = `${BASE_URL}search.php?s=`; //根据菜名，搜菜单；
-const LOOKUP_URL = `${BASE_URL}lookup.php?i=`; //根据菜名id，搜菜谱详情；
-
-searchBtn.addEventListener("click", searchMeals);
-searchInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") searchMeals();
-});
-mealsContainer.addEventListener("click", handleMealClick);
-backBtn.addEventListener("click", () => {
-  mealDetails.classList.add("hidden");
-  mealsContainer.classList.remove("hidden");
-  resultHeading.classList.remove("hidden");
-});
-
-async function searchMeals() {
-  const searchTerm = searchInput.value.trim();
-  // handled the edge case
-  if (!searchTerm) {
-    errorContainer.textContent = "Please enter a search term";
-    errorContainer.classList.remove("hidden");
-    return;
-  }
-  try {
-    resultHeading.textContent = `Searching for "${searchTerm}"...`;
-    resultHeading.classList.remove("hidden");
-    mealsContainer.innerHTML = "";
-    mealsContainer.classList.add("hidden");
-    errorContainer.classList.add("hidden");
-    mealDetails.classList.add("hidden");
-
-    // fetch meals from API
-    // www.themealdb.com/api/json/v1/1/search.php?s=chicken
-    const response = await fetch(`${SEARCH_URL}${searchTerm}`);
-    const data = await response.json();
-
-    if (data.meals === null) {
-      // no meals found
-      resultHeading.textContent = ``;
-      resultHeading.classList.add("hidden");
-      mealsContainer.innerHTML = "";
-      mealsContainer.classList.add("hidden");
-      errorContainer.textContent = `No recipes found for "${searchTerm}". Try another search term!`;
-      errorContainer.classList.remove("hidden");
-    } else {
-      resultHeading.textContent = `Search results for "${searchTerm}":`;
-      resultHeading.classList.remove("hidden");
-      mealsContainer.classList.remove("hidden");
-      displayMeals(data.meals);
-      searchInput.value = "";
-    }
-  } catch (error) {
-    errorContainer.textContent = "Something went wrong. Please try again later.";
-    errorContainer.classList.remove("hidden");
-  }
-}
-
-function displayMeals(meals) {
-  mealsContainer.innerHTML = "";
-  // loop through meals and create a card for each meal
-  meals.forEach((meal) => {
-    mealsContainer.innerHTML += `
-      <div class="meal" data-meal-id="${meal.idMeal}">
-        <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
-        <div class="meal-info">
-          <h3 class="meal-title">${meal.strMeal}</h3>
-          ${meal.strCategory ? `<div class="meal-category">${meal.strCategory}</div>` : ""}
+        <p class="api-link">Data From <a href="https://www.themealdb.com/api.php">TheMealDB🧑‍🍳</a></p>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search for recipes...">
+            <button id="search-button"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
-      </div>
-    `;
-  });
-}
 
-async function handleMealClick(e) {
-  const mealEl = e.target.closest(".meal");
-  if (!mealEl) return;
+        <div id="error-container" class="hidden">
+            <p>No meals found. Try another input.</p>
+        </div>
 
-  const mealId = mealEl.getAttribute("data-meal-id");
+        <div class="result-heading hidden">
+            You search....
+        </div>
 
-  try {
-    const response = await fetch(`${LOOKUP_URL}${mealId}`);
-    const data = await response.json();
+        <div id="meals" class="meals-container hidden">
+            <!--
+                <img src="https://www.themealdb.com/images/media/meals/wvqpwt1468339226.jpg" alt="Mediterranean Pasta Salad" class="meal-details-img">
+                <h2 class="meal-details-title">Mediterranean Pasta Salad</h2>
+                <div class="meal-details-category">
+                    <span>Seafood</span>
+                </div>
+                <div class="meal-details-instructions">
+                    <h3>Instructions</h3>
+                    <p>Bring a large saucepan of salted water to the boil
+                        Add the pasta, stir once and cook for about 10 minutes or as directed on the packet.Meanwhile, wash the tomatoes and cut into quarters. Slice the olives. Wash the basil.</p>
+                    </div>
+                    <div class="meal-details-ingredients">
+                        <h3>Ingredients</h3>
+                        <ul class="ingredients-list">  
+                            <li><i class="fas fa-check-circle"></i> 200 g mozzarella balls</li>
+                            <li><i class="fas fa-check-circle"></i> 250 g baby plum tomatoes</li>           
+                            <li><i class="fas fa-check-circle"></i> 1  bunch fresh basil</li>     
+                            <li><i class="fas fa-check-circle"></i> 350 g farfalle</li>       
+                            <li><i class="fas fa-check-circle"></i> 3  tablespoons extra virgin olive oil</li>          
+                            <li><i class="fas fa-check-circle"></i> 40 g Green Olives</li>          
+                            <li><i class="fas fa-check-circle"></i> 200 g tuna</li>            
+                            <li><i class="fas fa-check-circle"></i> to taste salt</li>            
+                            <li><i class="fas fa-check-circle"></i> to taste pepper</li>            
+                        </ul>
+                    </div>
+                    <a href="https://www.youtube.com/watch?v=e52IL8zYmaE" target="_blank" class="youtube-link">
+                        <i class="fab fa-youtube"></i> Watch Video
+                    </a>
+                    </div>
+                -->
+        </div>
+        
+        <div id="meal-details" class="hidden">
+            <button id="back-btn"><i class="fa-solid fa-arrow-left"></i>Back to recipes</button>
+            <div class="meal-details-content">
+                <!--
+            <div class="meal" data-meal-id="52777">
+                <img src="https://www.themealdb.com/images/media/meals/wvqpwt1468339226.jpg" alt="Mediterranean Pasta Salad">
+                <div class="meal-info">
+                    <h3 class="meal-title">Mediterranean Pasta Salad</h3>
+                    <div class="meal-category">Seafood</div>
+                </div>
+            </div>
 
-    if (data.meals && data.meals[0]) {
-      const meal = data.meals[0];
+            <div class="meal" data-meal-id="52777">
+                <img src="https://www.themealdb.com/images/media/meals/wvqpwt1468339226.jpg" alt="Mediterranean Pasta Salad">
+                <div class="meal-info">
+                    <h3 class="meal-title">Mediterranean Pasta Salad</h3>
+                    <div class="meal-category">Seafood</div>
+                </div>
+            </div>
+            
+            <div class="meal" data-meal-id="52777">
+                <img src="https://www.themealdb.com/images/media/meals/wvqpwt1468339226.jpg" alt="Mediterranean Pasta Salad">
+                <div class="meal-info">
+                    <h3 class="meal-title">Mediterranean Pasta Salad</h3>
+                    <div class="meal-category">Seafood</div>
+                </div>
+            </div>
+        -->
+            </div>
+        </div>
+    </div>
 
-      const ingredients = [];
-
-      for (let i = 1; i <= 20; i++) {
-        if (meal[`strIngredient${i}`] && meal[`strIngredient${i}`].trim() !== "") {
-          ingredients.push({
-            ingredient: meal[`strIngredient${i}`],
-            measure: meal[`strMeasure${i}`],
-          });
-        }
-      }
-
-      // display meal details
-      mealDetailsContent.innerHTML = `
-           <img src="${meal.strMealThumb}" alt="${meal.strMeal}" class="meal-details-img">
-           <h2 class="meal-details-title">${meal.strMeal}</h2>
-           <div class="meal-details-category">
-             <span>${meal.strCategory || "Uncategorized"}</span>
-           </div>
-           <div class="meal-details-instructions">
-             <h3>Instructions</h3>
-             <p>${meal.strInstructions}</p>
-           </div>
-           <div class="meal-details-ingredients">
-             <h3>Ingredients</h3>
-             <ul class="ingredients-list">
-               ${ingredients
-                 .map(
-                   (item) => `
-                 <li><i class="fas fa-check-circle"></i> ${item.measure} ${item.ingredient}</li>
-               `
-                 )
-                 .join("")}
-             </ul>
-           </div>
-           ${
-             meal.strYoutube
-               ? `
-             <a href="${meal.strYoutube}" target="_blank" class="youtube-link">
-               <i class="fab fa-youtube"></i> Watch Video
-             </a>
-           `
-               : ""
-           }
-         `;
-      mealDetails.classList.remove("hidden");
-      mealsContainer.classList.add("hidden");
-      resultHeading.classList.add("hidden");
-      mealDetails.scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    errorContainer.textContent = "Could not load recipe details. Please try again later.";
-    errorContainer.classList.remove("hidden");
-  }
-}
+    <script src="script.js"></script>
+</body>
+</html>
